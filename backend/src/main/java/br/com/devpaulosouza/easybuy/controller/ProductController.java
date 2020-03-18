@@ -2,7 +2,6 @@ package br.com.devpaulosouza.easybuy.controller;
 
 import br.com.devpaulosouza.easybuy.dto.ProductDto;
 import br.com.devpaulosouza.easybuy.dto.ProductSimplifiedDto;
-import br.com.devpaulosouza.easybuy.model.Product;
 import br.com.devpaulosouza.easybuy.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,7 +21,7 @@ public class ProductController {
     ProductService service;
 
     @PostMapping
-    public Mono<ResponseEntity<ProductDto>> create(@Valid @RequestBody ProductDto productDto) throws InvalidObjectException {
+    public Mono<ResponseEntity<ProductDto>> create(@Valid @RequestBody ProductDto productDto) {
         return service
                 .create(productDto)
                 .map(ResponseEntity::ok);

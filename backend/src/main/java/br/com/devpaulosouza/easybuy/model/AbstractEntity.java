@@ -1,7 +1,5 @@
 package br.com.devpaulosouza.easybuy.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,0 +1,50 @@
+security:
+  basic:
+    enable: false
+  ignored: /**
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    platform: postgres
+    type: com.zaxxer.hikari.HikariDataSource
+  jpa:
+    database: POSTGRESQL
+    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        id:
+          new_generator_mappings: true
+        jdbc:
+          time_zone: UTC
+    show-sql: true
+  liquibase:
+    change-log: classpath:/db/changelog-master.xml
+    contexts: dev
+
+
+---
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5432/easybuy
+    password: postgres
+    username: postgres
+
+
+---
+
+spring:
+  profiles: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/easybuy
+    password: postgres
+    username: postgres

@@ -3,7 +3,9 @@ package br.com.devpaulosouza.easybuy.model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Formula;
 
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -27,5 +29,11 @@ public class Product extends AbstractEntity {
 
     @Column(nullable = false)
     private BigDecimal price;
+
+    @Formula(
+            "(SELECT pi.quantity from product_inventory pi where pi.product_id = id order by pi.created_at desc limit 1)"
+    )
+    @Basic
+    private BigDecimal quantity;
 
 }

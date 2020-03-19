@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -33,5 +34,8 @@ public class ProductDto implements Dto {
     @NotNull
     private BigDecimal price;
 
+    @NotNull
+    @Min(0)
+    private BigDecimal quantity;
 
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.io.InvalidObjectException;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/product")
@@ -31,6 +31,13 @@ public class ProductController {
     public Mono<ResponseEntity<Page<ProductSimplifiedDto>>> findAll(Pageable pageable) {
         return service
                 .findAll(pageable)
+                .map(ResponseEntity::ok);
+    }
+
+    @GetMapping("/{uuidProduct}")
+    public Mono<ResponseEntity<ProductDto>> findByUuid(@PathVariable("uuidProduct") UUID uuidProduct) {
+        return service
+                .findByUuid(uuidProduct)
                 .map(ResponseEntity::ok);
     }
 

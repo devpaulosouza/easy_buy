@@ -14,8 +14,6 @@
                 <constraints nullable="false" />
             </column>
 
-            <column name="updated_at" type="TIMESTAMP" />
-
             <column name="uuid" type="UUID">
                 <constraints nullable="false"/>
             </column>

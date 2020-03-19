@@ -4,31 +4,37 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
 
-    <changeSet author="paulo.santos" id="create-table-product-inventory">
-        <createTable tableName="product_inventory">
+    <changeSet author="paulo.santos" id="create-table-product-order">
+        <createTable tableName="product_order">
             <column autoIncrement="true" name="id" type="BIGINT">
-                <constraints nullable="false" primaryKey="true" primaryKeyName="product-inventoryPK"/>
+                <constraints nullable="false" primaryKey="true" primaryKeyName="product-orderPK"/>
             </column>
 
             <column name="created_at" type="TIMESTAMP">
                 <constraints nullable="false" />
             </column>
 
+            <column name="updated_at" type="TIMESTAMP" />
+
             <column name="uuid" type="UUID">
                 <constraints nullable="false"/>
             </column>
 
             <column name="product_id" type="BIGINT">
-                <constraints foreignKeyName="product-inventory_productFK" referencedColumnNames="id"/>
+                <constraints
+                        foreignKeyName="product-inventory_productFK"
+                        referencedTableName="product"
+                        referencedColumnNames="id"/>
+            </column>
+
+            <column name="order_id" type="BIGINT">
+                <constraints
+                        foreignKeyName="order-product_orderFK"
+                        referencedTableName="order_"
+                        referencedColumnNames="id"/>
             </column>
 
             <column name="quantity" type="NUMERIC">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="previous_quantity" type="NUMERIC" />
-
-            <column name="quantity_offset" type="NUMERIC">
                 <constraints nullable="false"/>
             </column>
 

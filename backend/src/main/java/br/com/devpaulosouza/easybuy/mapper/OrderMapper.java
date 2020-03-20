@@ -3,6 +3,7 @@ package br.com.devpaulosouza.easybuy.mapper;
 import br.com.devpaulosouza.easybuy.dto.OrderDetailedDto;
 import br.com.devpaulosouza.easybuy.dto.OrderInputDto;
 import br.com.devpaulosouza.easybuy.dto.OrderOutputDto;
+import br.com.devpaulosouza.easybuy.dto.OrderSimplifiedDto;
 import br.com.devpaulosouza.easybuy.model.Order;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -25,5 +26,10 @@ public interface OrderMapper {
             @Mapping(target = "id", source = "uuid")
     })
     OrderDetailedDto toDetailedDto(Order order);
+
+    @Mappings({
+            @Mapping(target = "id", source = "uuid")
+    })
+    OrderSimplifiedDto toSimplifiedDto(Order order);
 
 }

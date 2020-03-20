@@ -3,8 +3,11 @@ package br.com.devpaulosouza.easybuy.controller;
 import br.com.devpaulosouza.easybuy.dto.OrderDetailedDto;
 import br.com.devpaulosouza.easybuy.dto.OrderInputDto;
 import br.com.devpaulosouza.easybuy.dto.OrderOutputDto;
+import br.com.devpaulosouza.easybuy.dto.OrderSimplifiedDto;
 import br.com.devpaulosouza.easybuy.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -25,14 +28,14 @@ public class OrderController {
                 .create(orderInputDto)
                 .map(ResponseEntity::ok);
     }
-//
-//    @GetMapping
-//    public Mono<ResponseEntity<Page<ProductSimplifiedDto>>> findAll(Pageable pageable) {
-//        return service
-//                .findAll(pageable)
-//                .map(ResponseEntity::ok);
-//    }
-//
+
+    @GetMapping
+    public Mono<ResponseEntity<Page<OrderSimplifiedDto>>> findAll(Pageable pageable) {
+        return service
+                .findAll(pageable)
+                .map(ResponseEntity::ok);
+    }
+
 
     @GetMapping("/{orderId}")
     public Mono<ResponseEntity<OrderDetailedDto>> findByUuid(@PathVariable("orderId") UUID uuidProduct) {

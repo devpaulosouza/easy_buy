@@ -1,9 +1,6 @@
 package br.com.devpaulosouza.easybuy.service;
 
-import br.com.devpaulosouza.easybuy.dto.OrderDetailedDto;
-import br.com.devpaulosouza.easybuy.dto.OrderInputDto;
-import br.com.devpaulosouza.easybuy.dto.OrderOutputDto;
-import br.com.devpaulosouza.easybuy.dto.ProductOrderInputDto;
+import br.com.devpaulosouza.easybuy.dto.*;
 import br.com.devpaulosouza.easybuy.mapper.OrderMapper;
 import br.com.devpaulosouza.easybuy.model.Order;
 import br.com.devpaulosouza.easybuy.model.Product;
@@ -11,6 +8,8 @@ import br.com.devpaulosouza.easybuy.model.ProductOrder;
 import br.com.devpaulosouza.easybuy.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -63,6 +62,12 @@ public class OrderService {
         return Mono.just(uuidProduct)
                 .flatMap(uuid -> Mono.fromCallable(() -> orderRepository.findByUuid(uuid)))
                 .map(mapper::toDetailedDto);
+    }
+
+    public Mono<Page<OrderSimplifiedDto>> findAll(Pageable pageable) {
+        return Mono.just(pageable)
+                .flatMap(pageRequest -> Mono.fromCallable(() -> orderRepository.findAll(pageRequest)))
+                .map(orders -> orders.map(mapper::toSimplifiedDto));
     }
 
     public Mono<Long> getNextNumber() {

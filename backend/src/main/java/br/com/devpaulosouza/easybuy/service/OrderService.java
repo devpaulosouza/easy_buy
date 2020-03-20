@@ -6,6 +6,7 @@ import br.com.devpaulosouza.easybuy.dto.ProductOrderInputDto;
 import br.com.devpaulosouza.easybuy.mapper.OrderMapper;
 import br.com.devpaulosouza.easybuy.model.Order;
 import br.com.devpaulosouza.easybuy.model.Product;
+import br.com.devpaulosouza.easybuy.model.ProductOrder;
 import br.com.devpaulosouza.easybuy.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,12 +102,12 @@ public class OrderService {
             }
         });
 
-        order.setProducts(
-                order.getProducts()
+        List<ProductOrder> productsWithPrices = order.getProducts()
                 .stream()
-                .peek(productOrder -> productOrder.getProduct().setPrice(productOrder.getProduct().getPrice()))
-                .collect(Collectors.toList())
-        );
+                .peek(productOrder -> productOrder.setPrice(productOrder.getQuantity().multiply(productOrder.getProduct().getPrice())))
+                .collect(Collectors.toList());
+
+        order.setProducts(productsWithPrices);
 
         order.setNumber(nextNumber);
 

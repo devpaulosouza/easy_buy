@@ -1,6 +1,7 @@
 package br.com.devpaulosouza.easybuy.controller;
 
-import br.com.devpaulosouza.easybuy.dto.OrderDto;
+import br.com.devpaulosouza.easybuy.dto.OrderInputDto;
+import br.com.devpaulosouza.easybuy.dto.OrderOutputDto;
 import br.com.devpaulosouza.easybuy.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,9 @@ public class OrderController {
     private OrderService service;
 
     @PostMapping
-    public Mono<ResponseEntity<OrderDto>> create(@Valid @RequestBody OrderDto orderDto) {
+    public Mono<ResponseEntity<OrderOutputDto>> create(@Valid @RequestBody OrderInputDto orderInputDto) {
         return service
-                .create(orderDto)
+                .create(orderInputDto)
                 .map(ResponseEntity::ok);
     }
 //

@@ -13,13 +13,13 @@ import java.util.UUID;
 @Setter
 @ToString
 @NoArgsConstructor
-public class OrderDto {
+public class OrderInputDto {
 
     private UUID id;
 
     private Long number;
 
     @NotEmpty
-    private List<ProductOrderDto> products;
+    private List<ProductOrderInputDto> products;
 
 }

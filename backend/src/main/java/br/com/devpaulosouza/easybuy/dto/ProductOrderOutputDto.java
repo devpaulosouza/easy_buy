@@ -14,7 +14,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @NoArgsConstructor
-public class ProductOrderDto {
+public class ProductOrderOutputDto {
 
     private UUID id;
 
@@ -25,5 +25,7 @@ public class ProductOrderDto {
 
     @NotNull
     private BigDecimal quantity;
+
+    private BigDecimal price;
 
 }

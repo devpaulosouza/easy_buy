@@ -1,12 +1,11 @@
 package br.com.devpaulosouza.easybuy.service;
 
-import br.com.devpaulosouza.easybuy.dto.OrderDto;
-import br.com.devpaulosouza.easybuy.dto.ProductOrderDto;
-import br.com.devpaulosouza.easybuy.exception.InvalidInputException;
+import br.com.devpaulosouza.easybuy.dto.OrderInputDto;
+import br.com.devpaulosouza.easybuy.dto.OrderOutputDto;
+import br.com.devpaulosouza.easybuy.dto.ProductOrderInputDto;
 import br.com.devpaulosouza.easybuy.mapper.OrderMapper;
 import br.com.devpaulosouza.easybuy.model.Order;
 import br.com.devpaulosouza.easybuy.model.Product;
-import br.com.devpaulosouza.easybuy.model.ProductOrder;
 import br.com.devpaulosouza.easybuy.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,21 +38,18 @@ public class OrderService {
     @Autowired
     private ProductInventoryService productInventoryService;
 
-    public Mono<OrderDto> create(OrderDto orderDto) {
+    public Mono<OrderOutputDto> create(OrderInputDto orderInputDto) {
 
         return Mono.zip(
-                values -> createOrderAggregate(orderDto, (List<Product>) values[0], (Long) values[1]),
+                values -> createOrderAggregate(orderInputDto, (List<Product>) values[0], (Long) values[1]),
                 productService.findAllByUuid(
-                        orderDto.getProducts()
+                        orderInputDto.getProducts()
                                 .stream()
-                                .map(ProductOrderDto::getProductId)
+                                .map(ProductOrderInputDto::getProductId)
                                 .collect(Collectors.toList())
                 ).collectList(),
                 this.getNextNumber()
         )
-                .doOnSuccess(a -> log.debug("meu deus do ceu berg"))
-                .doOnError(a -> log.debug("me ajuda silvio"))
-                .log()
                 .flatMap((productInventory) -> Mono.fromCallable(()-> orderRepository.save(productInventory)))
                 .flatMap(order -> Mono.just(order)
                         .flatMap((o) -> productOrderService.create(o.getProducts()))
@@ -62,31 +58,31 @@ public class OrderService {
     }
 
     public Mono<Long> getNextNumber() {
-        return Mono.fromCallable(() -> orderRepository.getNextNumber())
-                .doOnSuccess((number) -> log.debug("oh e agora quem poderá me defender {}" ,number));
+        return Mono.fromCallable(() -> orderRepository.getNextNumber());
     }
 
-    private Order createOrderAggregate(OrderDto orderDto, List<Product> value, Long nextNumber) {
+    private Order createOrderAggregate(OrderInputDto orderInputDto, List<Product> value, Long nextNumber) {
 
         List<UUID> productsPersisted = value
                 .stream()
                 .map(Product::getUuid)
                 .collect(Collectors.toList());
 
-        List<UUID> productsInOrder = orderDto
+        List<UUID> productsInOrder = orderInputDto
                 .getProducts()
                 .stream()
-                .map(ProductOrderDto::getProductId)
+                .map(ProductOrderInputDto::getProductId)
                 .collect(Collectors.toList());
 
-        productsPersisted.removeAll(productsInOrder);
+        productsInOrder.removeAll(productsPersisted);
 
-        if (productsPersisted.size() > 0) {
-            String uuids = productsPersisted.stream().map(UUID::toString).collect(Collectors.joining(", "));
-            throw new InvalidInputException("The product(s) " + uuids + " does not exist");
+        if (!productsInOrder.isEmpty()) {
+            String uuids = productsInOrder.stream().map(UUID::toString).collect(Collectors.joining(", "));
+
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "The product(s) " + uuids + " does not exist");
         }
 
-        Order order = mapper.toEntity(orderDto);
+        Order order = mapper.toEntity(orderInputDto);
 
         order.getProducts().forEach(productOrder -> {
             Optional<Product> first = value.stream()
@@ -105,14 +101,15 @@ public class OrderService {
             }
         });
 
+        order.setProducts(
+                order.getProducts()
+                .stream()
+                .peek(productOrder -> productOrder.getProduct().setPrice(productOrder.getProduct().getPrice()))
+                .collect(Collectors.toList())
+        );
+
         order.setNumber(nextNumber);
 
-
-        return order;
-    }
-
-    private Order setProducts(Order order, List<ProductOrder> products) {
-        order.setProducts(products);
         return order;
     }
 

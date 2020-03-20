@@ -27,4 +27,7 @@ public class ProductOrder extends AbstractEntity {
     @JoinColumn(name = "orderId")
     private Order order;
 
+    @Column(nullable = false)
+    private BigDecimal price;
+
 }

@@ -38,6 +38,10 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="price" type="NUMERIC">
+                <constraints nullable="false"/>
+            </column>
+
         </createTable>
     </changeSet>
 

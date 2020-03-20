@@ -1,5 +1,6 @@
 package br.com.devpaulosouza.easybuy.service;
 
+import br.com.devpaulosouza.easybuy.dto.OrderDetailedDto;
 import br.com.devpaulosouza.easybuy.dto.OrderInputDto;
 import br.com.devpaulosouza.easybuy.dto.OrderOutputDto;
 import br.com.devpaulosouza.easybuy.dto.ProductOrderInputDto;
@@ -56,6 +57,12 @@ public class OrderService {
                         .flatMap((o) -> productOrderService.create(o.getProducts()))
                         .map((p) -> order))
                 .map(mapper::toDto);
+    }
+
+    public Mono<OrderDetailedDto> findByUuid(UUID uuidProduct) {
+        return Mono.just(uuidProduct)
+                .flatMap(uuid -> Mono.fromCallable(() -> orderRepository.findByUuid(uuid)))
+                .map(mapper::toDetailedDto);
     }
 
     public Mono<Long> getNextNumber() {

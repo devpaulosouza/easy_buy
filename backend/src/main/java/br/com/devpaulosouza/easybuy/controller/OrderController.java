@@ -1,17 +1,16 @@
 package br.com.devpaulosouza.easybuy.controller;
 
+import br.com.devpaulosouza.easybuy.dto.OrderDetailedDto;
 import br.com.devpaulosouza.easybuy.dto.OrderInputDto;
 import br.com.devpaulosouza.easybuy.dto.OrderOutputDto;
 import br.com.devpaulosouza.easybuy.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/order")
@@ -34,11 +33,12 @@ public class OrderController {
 //                .map(ResponseEntity::ok);
 //    }
 //
-//    @GetMapping("/{uuidProduct}")
-//    public Mono<ResponseEntity<ProductDto>> findByUuid(@PathVariable("uuidProduct") UUID uuidProduct) {
-//        return service
-//                .findByUuid(uuidProduct)
-//                .map(ResponseEntity::ok);
-//    }
+
+    @GetMapping("/{orderId}")
+    public Mono<ResponseEntity<OrderDetailedDto>> findByUuid(@PathVariable("orderId") UUID uuidProduct) {
+        return service
+                .findByUuid(uuidProduct)
+                .map(ResponseEntity::ok);
+    }
 
 }

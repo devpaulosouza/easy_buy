@@ -5,24 +5,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.constraints.NotEmpty;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-public class OrderOutputDto {
+public class ProductOrderDetailedDto implements Dto {
 
     private UUID id;
 
-    private Long number;
+    private UUID orderId;
 
-    @NotEmpty
-    private List<ProductOrderOutputDto> products;
+    private ProductDto product;
 
-    private BigDecimal total;
+    private BigDecimal quantity;
+
+    private BigDecimal price;
 
 }

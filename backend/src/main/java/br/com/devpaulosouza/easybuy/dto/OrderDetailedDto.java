@@ -14,14 +14,14 @@ import java.util.UUID;
 @Setter
 @ToString
 @NoArgsConstructor
-public class OrderOutputDto {
+public class OrderDetailedDto {
 
     private UUID id;
 
     private Long number;
 
     @NotEmpty
-    private List<ProductOrderOutputDto> products;
+    private List<ProductOrderDetailedDto> products;
 
     private BigDecimal total;
 

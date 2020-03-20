@@ -1,5 +1,6 @@
 package br.com.devpaulosouza.easybuy.mapper;
 
+import br.com.devpaulosouza.easybuy.dto.ProductOrderDetailedDto;
 import br.com.devpaulosouza.easybuy.dto.ProductOrderInputDto;
 import br.com.devpaulosouza.easybuy.dto.ProductOrderOutputDto;
 import br.com.devpaulosouza.easybuy.model.ProductOrder;
@@ -7,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring", uses = { OrderMapper.class })
+@Mapper(componentModel = "spring", uses = { OrderMapper.class, ProductMapper.class })
 public interface ProductOrderMapper {
 
     @Mappings({
@@ -25,5 +26,10 @@ public interface ProductOrderMapper {
             @Mapping(target = "order.id", ignore = true),
     })
     ProductOrder toEntity(ProductOrderInputDto dto);
+
+    @Mappings({
+            @Mapping(target = "id", source = "uuid")
+    })
+    ProductOrderDetailedDto toDetailedDto(ProductOrder productOrder);
 
 }

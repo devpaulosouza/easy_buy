@@ -12,12 +12,12 @@ public interface ProductInventoryMapper {
 
     @Mappings({
             @Mapping(target = "id", source = "uuid"),
-            @Mapping(target = "uuidProduct", source = "product.uuid")
+            @Mapping(target = "productId", source = "product.uuid")
     })
     ProductInventoryOutputDto toDto(ProductInventory product);
 
     @Mappings({
-            @Mapping(target = "product.uuid", source = "uuidProduct"),
+            @Mapping(target = "product.uuid", source = "productId"),
     })
     ProductInventory toEntity(ProductInventoryInputDto dto);
 

@@ -22,13 +22,21 @@ public class ProductInventoryService {
     ProductInventoryRepository repository;
 
     public Mono<ProductInventoryOutputDto> updateInventory(ProductInventoryInputDto productDto) {
-
         return Mono.zip(
                 values -> createProductInventoryAggregate((ProductInventory) values[0], productDto),
-                Mono.fromCallable(() -> repository.findLastProductInventoryByUuidProduct(productDto.getUuidProduct()))
+                Mono.fromCallable(() -> repository.findLastProductInventoryByUuidProduct(productDto.getProductId()))
         )
                 .flatMap((productInventory) -> Mono.fromCallable(()-> repository.save(productInventory)))
                 .map(mapper::toDto);
+    }
+
+    public Mono<Void> updateInventory(Product product, BigDecimal quantityOffset) {
+        ProductInventoryInputDto productInventoryInputDto = new ProductInventoryInputDto();
+        productInventoryInputDto.setProductId(product.getUuid());
+        productInventoryInputDto.setQuantityOffset(quantityOffset);
+
+        return updateInventory(productInventoryInputDto)
+                .then();
     }
 
     public Mono<Void> create(Product product) {

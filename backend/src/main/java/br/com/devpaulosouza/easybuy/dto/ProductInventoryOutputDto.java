@@ -16,7 +16,7 @@ public class ProductInventoryOutputDto implements Dto {
 
     private UUID id;
 
-    private UUID uuidProduct;
+    private UUID productId;
 
     private BigDecimal quantity;
 

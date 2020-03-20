@@ -1,0 +1,119 @@
+package br.com.devpaulosouza.easybuy.service;
+
+import br.com.devpaulosouza.easybuy.dto.OrderDto;
+import br.com.devpaulosouza.easybuy.dto.ProductOrderDto;
+import br.com.devpaulosouza.easybuy.exception.InvalidInputException;
+import br.com.devpaulosouza.easybuy.mapper.OrderMapper;
+import br.com.devpaulosouza.easybuy.model.Order;
+import br.com.devpaulosouza.easybuy.model.Product;
+import br.com.devpaulosouza.easybuy.model.ProductOrder;
+import br.com.devpaulosouza.easybuy.repository.OrderRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+public class OrderService {
+
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private OrderMapper mapper;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private ProductOrderService productOrderService;
+
+    @Autowired
+    private ProductInventoryService productInventoryService;
+
+    public Mono<OrderDto> create(OrderDto orderDto) {
+
+        return Mono.zip(
+                values -> createOrderAggregate(orderDto, (List<Product>) values[0], (Long) values[1]),
+                productService.findAllByUuid(
+                        orderDto.getProducts()
+                                .stream()
+                                .map(ProductOrderDto::getProductId)
+                                .collect(Collectors.toList())
+                ).collectList(),
+                this.getNextNumber()
+        )
+                .doOnSuccess(a -> log.debug("meu deus do ceu berg"))
+                .doOnError(a -> log.debug("me ajuda silvio"))
+                .log()
+                .flatMap((productInventory) -> Mono.fromCallable(()-> orderRepository.save(productInventory)))
+                .flatMap(order -> Mono.just(order)
+                        .flatMap((o) -> productOrderService.create(o.getProducts()))
+                        .map((p) -> order))
+                .map(mapper::toDto);
+    }
+
+    public Mono<Long> getNextNumber() {
+        return Mono.fromCallable(() -> orderRepository.getNextNumber())
+                .doOnSuccess((number) -> log.debug("oh e agora quem poderá me defender {}" ,number));
+    }
+
+    private Order createOrderAggregate(OrderDto orderDto, List<Product> value, Long nextNumber) {
+
+        List<UUID> productsPersisted = value
+                .stream()
+                .map(Product::getUuid)
+                .collect(Collectors.toList());
+
+        List<UUID> productsInOrder = orderDto
+                .getProducts()
+                .stream()
+                .map(ProductOrderDto::getProductId)
+                .collect(Collectors.toList());
+
+        productsPersisted.removeAll(productsInOrder);
+
+        if (productsPersisted.size() > 0) {
+            String uuids = productsPersisted.stream().map(UUID::toString).collect(Collectors.joining(", "));
+            throw new InvalidInputException("The product(s) " + uuids + " does not exist");
+        }
+
+        Order order = mapper.toEntity(orderDto);
+
+        order.getProducts().forEach(productOrder -> {
+            Optional<Product> first = value.stream()
+                    .filter(product -> product.getUuid().equals(productOrder.getProduct().getUuid())).findFirst();
+            first.ifPresent(productOrder::setProduct);
+
+            productOrder.setOrder(order);
+        });
+
+        order.getProducts().forEach(productOrder -> {
+            if (productOrder.getQuantity().compareTo(productOrder.getProduct().getQuantity()) > 0) {
+                throw new ResponseStatusException(
+                        HttpStatus.INSUFFICIENT_STORAGE,
+                        "Insufficient storage for product " + productOrder.getProduct().getDescription()
+                );
+            }
+        });
+
+        order.setNumber(nextNumber);
+
+
+        return order;
+    }
+
+    private Order setProducts(Order order, List<ProductOrder> products) {
+        order.setProducts(products);
+        return order;
+    }
+
+}

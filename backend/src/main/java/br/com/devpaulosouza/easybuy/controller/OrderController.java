@@ -48,9 +48,12 @@ public class OrderController {
 
 
     @GetMapping("/{orderId}")
-    public Mono<ResponseEntity<OrderDetailedDto>> findByUuid(@PathVariable("orderId") UUID uuidProduct) {
+    public Mono<ResponseEntity<OrderDetailedDto>> findByUuid(
+            @PathVariable("orderId") UUID uuidProduct,
+            @CookieValue(value = "gambi_web_token", required = false) UUID token
+    ) {
         return service
-                .findByUuid(uuidProduct)
+                .findByUuid(uuidProduct, token)
                 .map(ResponseEntity::ok);
     }
 

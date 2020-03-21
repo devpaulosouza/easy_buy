@@ -65,9 +65,10 @@ public class OrderService {
                 .map(mapper::toDetailedDto);
     }
 
-    public Mono<OrderDetailedDto> findByUuid(UUID uuidProduct) {
-        return Mono.just(uuidProduct)
-                .flatMap(uuid -> Mono.fromCallable(() -> orderRepository.findByUuid(uuid)))
+    public Mono<OrderDetailedDto> findByUuid(UUID productId, UUID token) {
+        return authService.checkUserToken(token, AuthorityType.NOT_ADMIN)
+                .flatMap(user -> Mono.fromCallable(() -> orderRepository.findByUuidAndUserId(productId, user.getId())))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found")))
                 .map(mapper::toDetailedDto);
     }
 

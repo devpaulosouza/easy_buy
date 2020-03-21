@@ -23,9 +23,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query(
             "SELECT o FROM Order o" +
             "   JOIN FETCH o.products " +
-            "   WHERE o.uuid = :uuid"
+            "   JOIN o.user u " +
+            "   WHERE o.uuid = :uuid " +
+            "       AND u.id = :userId "
     )
-    Order findByUuid(@Param("uuid") UUID uuid);
+    Order findByUuidAndUserId(@Param("uuid") UUID uuid, @Param("userId") Long userId);
 
     Page<Order> findAllByUserUuid(@Param("uuid") UUID userId, Pageable pageable);
 

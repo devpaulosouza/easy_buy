@@ -4,7 +4,6 @@ services:
   postgres:
     image: postgres:11.2
     container_name: easybuy-database
-    restart: none
     environment:
       - TZ=UTC
       - PGTZ=UTC

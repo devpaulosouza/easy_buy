@@ -2,28 +2,34 @@ package br.com.devpaulosouza.easybuy.controller;
 
 import br.com.devpaulosouza.easybuy.dto.ProductInventoryInputDto;
 import br.com.devpaulosouza.easybuy.dto.ProductInventoryOutputDto;
+import br.com.devpaulosouza.easybuy.service.AuthService;
 import br.com.devpaulosouza.easybuy.service.ProductInventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/product/inventory")
 public class ProductInventoryController {
 
     @Autowired
-    ProductInventoryService service;
+    private ProductInventoryService service;
+
+    @Autowired
+    private AuthService authService;
+
 
     @PutMapping
-    public Mono<ResponseEntity<ProductInventoryOutputDto>> updateInventory(@Valid @RequestBody ProductInventoryInputDto productDto) {
+    public Mono<ResponseEntity<ProductInventoryOutputDto>> updateInventory(
+            @Valid @RequestBody ProductInventoryInputDto productDto,
+            @CookieValue(value = "gambi_web_token", required = false) UUID token
+    ) {
         return service
-                .updateInventory(productDto)
+                .updateInventory(productDto, token)
                 .map(ResponseEntity::ok);
     }
 

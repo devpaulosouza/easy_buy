@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
@@ -45,8 +44,7 @@ public class AuthService {
                 .map(userOutputDto -> {
                     log.debug(userOutputDto.toString());
                     return userOutputDto;
-                })
-                .log();
+                });
     }
 
     public Mono<UserOutputDto> authenticate(UserLoginDto inputDto) {
@@ -58,41 +56,11 @@ public class AuthService {
                         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "E-mail or password is invalid");
                     }
                     user.setToken(UUID.randomUUID());
-                    user.setTokenValidUntil(LocalDateTime.now().plusDays(7));
+                    user.setTokenValidUntil(LocalDateTime.now().plusDays(1));
                     return user;
                 })
                 .flatMap((user -> Mono.fromCallable(() -> userRepository.save(user))))
                 .map(mapper::toDto);
-    }
-
-    private User createUserAggregate(UserInputDto userInputDto, Boolean alreadyExists) {
-        if (alreadyExists) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail already registered");
-        }
-
-        if (!this.isValidEmailAddress(userInputDto.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "E-mail is invalid");
-        }
-
-        userInputDto.setUsername(userInputDto.getUsername().toLowerCase());
-
-        User user = mapper.toEntity(userInputDto);
-        user.setRole(AuthorityType.NOT_ADMIN);
-
-        return user;
-    }
-
-    public boolean isValidEmailAddress(String email) {
-        String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
-        java.util.regex.Pattern p = java.util.regex.Pattern.compile(ePattern);
-        java.util.regex.Matcher m = p.matcher(email);
-        return m.matches();
-    }
-
-    public Mono<Page<UserOutputSimplifiedDto>> findAll(UUID token, Pageable pageable) {
-        return checkUserToken(token, AuthorityType.ADMIN)
-                .flatMap((user) -> Mono.fromCallable(() -> userRepository.findAll(pageable)))
-                .map(users -> users.map(mapper::toSimplifiedDto));
     }
 
     public Mono<User> checkUserToken(UUID token, AuthorityType role) {
@@ -113,6 +81,40 @@ public class AuthService {
                     }
                     return user;
                 });
+    }
+
+
+    public Mono<Page<UserOutputSimplifiedDto>> findAll(UUID token, Pageable pageable) {
+        return checkUserToken(token, AuthorityType.ADMIN)
+                .flatMap((user) -> Mono.fromCallable(() -> userRepository.findAll(pageable)))
+                .map(users -> users.map(mapper::toSimplifiedDto));
+    }
+
+
+    private User createUserAggregate(UserInputDto userInputDto, Boolean alreadyExists) {
+        if (alreadyExists) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail already registered");
+        }
+
+        if (!this.isValidEmailAddress(userInputDto.getUsername())) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "E-mail is invalid");
+        }
+
+        userInputDto.setUsername(userInputDto.getUsername().toLowerCase());
+
+        User user = mapper.toEntity(userInputDto);
+        user.setRole(AuthorityType.NOT_ADMIN);
+        user.setToken(UUID.randomUUID());
+        user.setTokenValidUntil(LocalDateTime.now().plusDays(1));
+
+        return user;
+    }
+
+    private boolean isValidEmailAddress(String email) {
+        String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
+        java.util.regex.Pattern p = java.util.regex.Pattern.compile(ePattern);
+        java.util.regex.Matcher m = p.matcher(email);
+        return m.matches();
     }
 
 }

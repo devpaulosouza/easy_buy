@@ -2,6 +2,7 @@ package br.com.devpaulosouza.easybuy.service;
 
 import br.com.devpaulosouza.easybuy.dto.ProductInventoryInputDto;
 import br.com.devpaulosouza.easybuy.dto.ProductInventoryOutputDto;
+import br.com.devpaulosouza.easybuy.enumeration.AuthorityType;
 import br.com.devpaulosouza.easybuy.mapper.ProductInventoryMapper;
 import br.com.devpaulosouza.easybuy.model.Product;
 import br.com.devpaulosouza.easybuy.model.ProductInventory;
@@ -11,45 +12,56 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Service
 public class ProductInventoryService {
 
     @Autowired
-    ProductInventoryMapper mapper;
+    private ProductInventoryMapper mapper;
 
     @Autowired
-    ProductInventoryRepository repository;
+    private ProductInventoryRepository repository;
 
-    public Mono<ProductInventoryOutputDto> updateInventory(ProductInventoryInputDto productDto) {
+    @Autowired
+    private AuthService authService;
+
+    public Mono<ProductInventoryOutputDto> updateInventory(ProductInventoryInputDto productDto, UUID token) {
+        return authService.checkUserToken(token, AuthorityType.ADMIN)
+                .then(
+                        Mono.zip(
+                                values -> createProductInventoryAggregate((ProductInventory) values[0], productDto),
+                                Mono.fromCallable(() -> repository.findLastProductInventoryByUuidProduct(productDto.getProductId()))
+                        )
+                                .flatMap((productInventory) -> Mono.fromCallable(() -> repository.save(productInventory)))
+                                .map(mapper::toDto)
+                );
+    }
+
+    public Mono<Void> updateInventory(Product product, BigDecimal quantityOffset) {
+        ProductInventoryInputDto productDto = new ProductInventoryInputDto();
+        productDto.setProductId(product.getUuid());
+        productDto.setQuantityOffset(quantityOffset);
+
         return Mono.zip(
                 values -> createProductInventoryAggregate((ProductInventory) values[0], productDto),
                 Mono.fromCallable(() -> repository.findLastProductInventoryByUuidProduct(productDto.getProductId()))
         )
-                .flatMap((productInventory) -> Mono.fromCallable(()-> repository.save(productInventory)))
-                .map(mapper::toDto);
-    }
-
-    public Mono<Void> updateInventory(Product product, BigDecimal quantityOffset) {
-        ProductInventoryInputDto productInventoryInputDto = new ProductInventoryInputDto();
-        productInventoryInputDto.setProductId(product.getUuid());
-        productInventoryInputDto.setQuantityOffset(quantityOffset);
-
-        return updateInventory(productInventoryInputDto)
+                .flatMap((productInventory) -> Mono.fromCallable(() -> repository.save(productInventory)))
                 .then();
     }
 
     public Mono<Void> create(Product product) {
         return Mono.just(product)
                 .map(this::mapProductToProductInventory)
-                .flatMap((productInventory) -> Mono.fromCallable(()-> repository.save(productInventory)))
+                .flatMap((productInventory) -> Mono.fromCallable(() -> repository.save(productInventory)))
                 .then();
     }
 
     private ProductInventory createProductInventoryAggregate(
             ProductInventory productInventory,
             ProductInventoryInputDto productDto
-    ){
+    ) {
         ProductInventory newProductInventory = new ProductInventory();
         newProductInventory.setQuantity(productInventory.getQuantity().add(productDto.getQuantityOffset()));
         newProductInventory.setProduct(productInventory.getProduct());

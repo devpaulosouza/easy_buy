@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -14,8 +15,10 @@ import java.util.UUID;
 @NoArgsConstructor
 public class ProductInventoryInputDto implements Dto{
 
+    @NotNull
     UUID productId;
 
+    @NotNull
     BigDecimal quantityOffset;
 
 }

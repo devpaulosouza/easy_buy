@@ -28,9 +28,12 @@ public class AuthController {
     private AuthService service;
 
     @PostMapping("/user")
-    Mono<ResponseEntity<UserOutputDto>> createUser(@RequestBody @Valid UserInputDto userInputDto) {
+    Mono<ResponseEntity<UserOutputDto>> createUser(
+            @RequestBody @Valid UserInputDto userInputDto,
+            HttpServletResponse response
+    ) {
         return service.createUser(userInputDto)
-                .map(ResponseEntity::ok);
+                .map(userOutputDto -> createAuthResponse(response, userOutputDto));
     }
 
     @GetMapping("/user")
@@ -43,24 +46,26 @@ public class AuthController {
                 .map(ResponseEntity::ok);
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping
     Mono<ResponseEntity<UserOutputDto>> authenticate(
             @RequestBody @Valid UserLoginDto userInputDto,
             HttpServletResponse response
     ) {
         return service.authenticate(userInputDto)
-                .map((outputDto) -> {
-                    Cookie cookie = new Cookie("gambi_web_token", outputDto.getToken().toString());
+                .map((outputDto) -> createAuthResponse(response, outputDto));
+    }
 
-                    cookie.setMaxAge(24 * 60 * 60);
+    private ResponseEntity<UserOutputDto> createAuthResponse(HttpServletResponse response, UserOutputDto outputDto) {
+        Cookie cookie = new Cookie("gambi_web_token", outputDto.getToken().toString());
 
-                    cookie.setSecure(false);
-                    cookie.setPath("/");
+        cookie.setMaxAge(24 * 60 * 60);
 
-                    response.addCookie(cookie);
+        cookie.setSecure(false);
+        cookie.setPath("/");
 
-                    return ResponseEntity.ok(outputDto);
-                });
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(outputDto);
     }
 
 }

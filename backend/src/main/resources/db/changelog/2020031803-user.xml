@@ -33,9 +33,7 @@
             </column>
 
             <!-- gambiarra. não faça isso em casa-->
-            <column name="role" type="VARCHAR(9)">
-                <constraints nullable="false" unique="true" />
-            </column>
+            <column name="role" type="VARCHAR(9)" />
             <column name="token" type="UUID" />
             <column name="token_valid_until" type="TIMESTAMP" />
 

@@ -34,6 +34,7 @@ spring.resources.add-mappings: false
 spring.mvc.throw-exception-if-no-handler-found: true
 spring.http.encoding.force: true
 
+jwt.secret: onarutopodeserumpoucoduroasvezes
 
 ---
 spring:

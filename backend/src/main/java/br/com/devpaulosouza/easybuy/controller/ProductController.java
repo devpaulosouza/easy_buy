@@ -2,6 +2,8 @@ package br.com.devpaulosouza.easybuy.controller;
 
 import br.com.devpaulosouza.easybuy.dto.ProductDto;
 import br.com.devpaulosouza.easybuy.dto.ProductSimplifiedDto;
+import br.com.devpaulosouza.easybuy.enumeration.AuthorityType;
+import br.com.devpaulosouza.easybuy.service.AuthService;
 import br.com.devpaulosouza.easybuy.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,10 +22,17 @@ public class ProductController {
     @Autowired
     ProductService service;
 
+    @Autowired
+    AuthService authService;
+
     @PostMapping
-    public Mono<ResponseEntity<ProductDto>> create(@Valid @RequestBody ProductDto productDto) {
-        return service
-                .create(productDto)
+    public Mono<ResponseEntity<ProductDto>> create(
+            @Valid @RequestBody ProductDto productDto,
+            @CookieValue(value = "gambi_web_token", required = false) UUID token
+    ) {
+        return authService
+                .hasPermission(token, AuthorityType.ADMIN)
+                .then(service.create(productDto))
                 .map(ResponseEntity::ok);
     }
 

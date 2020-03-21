@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -42,12 +43,6 @@ public class AuthService {
                     return userOutputDto;
                 })
                 .log();
-    }
-
-    public Mono<User> findUserByEmail(String userEmail) {
-        return Mono.just(userEmail)
-                .flatMap(email -> Mono.fromCallable(() -> userRepository.findByUsername(email)))
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN, "E-mail not registered")));
     }
 
     public Mono<UserOutputDto> authenticate(UserLoginDto inputDto) {
@@ -84,10 +79,29 @@ public class AuthService {
     }
 
     public boolean isValidEmailAddress(String email) {
-        String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
+        String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
         java.util.regex.Pattern p = java.util.regex.Pattern.compile(ePattern);
         java.util.regex.Matcher m = p.matcher(email);
         return m.matches();
     }
 
+    public Mono<Void> hasPermission(UUID token, AuthorityType role) {
+
+        if (Objects.isNull(token)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
+        }
+
+        return Mono.just(token)
+                .flatMap(tkn -> Mono.fromCallable(() -> userRepository.findByToken(tkn)))
+                .map(user -> {
+                    if (AuthorityType.ADMIN.equals(role) && !AuthorityType.ADMIN.equals(user.getRole())) {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
+                    }
+                    if (LocalDateTime.now().isAfter(user.getTokenValidUntil())) {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Token expired");
+                    }
+                    return user;
+                })
+                .then();
+    }
 }

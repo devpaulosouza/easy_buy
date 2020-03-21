@@ -4,7 +4,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
 
-    <changeSet author="paulo.santos" id="create-table-product-inventory">
+    <changeSet author="paulo.santos" id="2-create-table-product-inventory">
         <createTable tableName="product_inventory">
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="product-inventoryPK"/>
@@ -19,7 +19,10 @@
             </column>
 
             <column name="product_id" type="BIGINT">
-                <constraints foreignKeyName="product-inventory_productFK" referencedColumnNames="id"/>
+                <constraints
+                        foreignKeyName="product-inventory_productFK"
+                        referencedColumnNames="id"
+                />
             </column>
 
             <column name="quantity" type="NUMERIC">

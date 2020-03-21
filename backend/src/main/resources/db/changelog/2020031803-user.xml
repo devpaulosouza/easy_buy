@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="paulo.santos" id="create-table-user">
+        <createTable tableName="user_">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="userPK"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="updated_at" type="TIMESTAMP" />
+
+            <column name="uuid" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="username" type="VARCHAR(128)">
+                <constraints nullable="false" unique="true" />
+            </column>
+
+            <column name="password" type="VARCHAR(64)">
+                <constraints nullable="false" />
+            </column>
+
+            <!-- gambiarra. não faça isso em casa-->
+            <column name="role" type="VARCHAR(9)">
+                <constraints nullable="false" unique="true" />
+            </column>
+            <column name="token" type="UUID" />
+            <column name="token_valid_until" type="TIMESTAMP" />
+
+        </createTable>
+    </changeSet>
+
+<!--    <changeSet author="paulo.santos" id="create-authority">-->
+<!--        <createTable tableName="authority">-->
+<!--            <column autoIncrement="true" name="id" type="BIGINT">-->
+<!--                <constraints nullable="false" primaryKey="true" primaryKeyName="authorityPK"/>-->
+<!--            </column>-->
+
+<!--            <column name="created_at" type="TIMESTAMP">-->
+<!--                <constraints nullable="false" />-->
+<!--            </column>-->
+
+<!--            <column name="updated_at" type="TIMESTAMP" />-->
+
+<!--            <column name="uuid" type="UUID">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
+
+<!--            <column name="user_id" type="BIGINT">-->
+<!--                <constraints-->
+<!--                        foreignKeyName="authority_userFK"-->
+<!--                        referencedColumnNames="id"-->
+<!--                        referencedTableName="user_"-->
+<!--                />-->
+<!--            </column>-->
+
+<!--            -->
+<!--            -->
+<!--        </createTable>-->
+<!--    </changeSet>-->
+
+<!--    a disgraça do secutiry não está funcionando pq eu sou um merda. Depois implemento, por enquanto vai na base da gambiarra -->
+
+    <changeSet author="nao-foi-eu" id="default-admin-user">
+        <insert tableName="user_">
+            <column name="id" value="0"/>
+            <column name="created_at" value="now()"/>
+            <column name="uuid" value="809a814e-aa23-44fe-b1bf-1160f5ebad03"/>
+            <column name="name" value="admin"/>
+            <column name="username" value="admin"/>
+            <column name="password" value="admin"/>
+            <column name="role" value="ADMIN"/>
+        </insert>
+    </changeSet>
+
+
+<!--    <changeSet author="nao-foi-eu" id="default-admin-user-2">-->
+<!--        <insert tableName="authority">-->
+<!--            <column name="created_at" value="now()"/>-->
+<!--            <column name="uuid" value="809a814e-aa23-44fe-b1bf-1160f5ebad03"/>-->
+<!--            <column name="user_id" value="0"/>-->
+<!--            <column name="authority" value="ADMIN"/>-->
+<!--        </insert>-->
+<!--        <insert tableName="authority">-->
+<!--            <column name="created_at" value="now()"/>-->
+<!--            <column name="uuid" value="809a814e-aa23-44fe-b1bf-1160f5ebad03"/>-->
+<!--            <column name="user_id" value="0"/>-->
+<!--            <column name="authority" value="USER"/>-->
+<!--        </insert>-->
+<!--    </changeSet>-->
+
+
+</databaseChangeLog>

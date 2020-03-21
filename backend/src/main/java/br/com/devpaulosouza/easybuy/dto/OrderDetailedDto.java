@@ -1,5 +1,6 @@
 package br.com.devpaulosouza.easybuy.dto;
 
+import br.com.devpaulosouza.easybuy.model.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,5 +25,9 @@ public class OrderDetailedDto {
     private List<ProductOrderDetailedDto> products;
 
     private BigDecimal total;
+
+    private UUID userId;
+
+    private String userName;
 
 }

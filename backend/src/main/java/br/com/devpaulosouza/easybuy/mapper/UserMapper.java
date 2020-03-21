@@ -2,6 +2,7 @@ package br.com.devpaulosouza.easybuy.mapper;
 
 import br.com.devpaulosouza.easybuy.dto.UserInputDto;
 import br.com.devpaulosouza.easybuy.dto.UserOutputDto;
+import br.com.devpaulosouza.easybuy.dto.UserOutputSimplifiedDto;
 import br.com.devpaulosouza.easybuy.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -23,5 +24,10 @@ public interface UserMapper {
 
     })
     User toEntity(UserInputDto userInputDto);
+
+    @Mappings({
+            @Mapping(target = "id", source = "uuid")
+    })
+    UserOutputSimplifiedDto toSimplifiedDto(User user);
 
 }

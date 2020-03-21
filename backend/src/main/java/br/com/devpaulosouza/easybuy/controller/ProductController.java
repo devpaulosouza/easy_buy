@@ -31,7 +31,7 @@ public class ProductController {
             @CookieValue(value = "gambi_web_token", required = false) UUID token
     ) {
         return authService
-                .hasPermission(token, AuthorityType.ADMIN)
+                .checkUserToken(token, AuthorityType.ADMIN)
                 .then(service.create(productDto))
                 .map(ResponseEntity::ok);
     }

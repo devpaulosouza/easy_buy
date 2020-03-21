@@ -22,7 +22,11 @@ public class Order extends AbstractEntity {
     private Long number;
 
     @OneToMany(mappedBy = "order")
-    List<ProductOrder> products;
+    private List<ProductOrder> products;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Formula(
             "(SELECT SUM(po.price) " +
@@ -31,6 +35,6 @@ public class Order extends AbstractEntity {
             "WHERE o.id = id)"
     )
     @Basic
-    BigDecimal total;
+    private BigDecimal total;
 
 }

@@ -1,10 +1,12 @@
 package br.com.devpaulosouza.easybuy.service;
 
 import br.com.devpaulosouza.easybuy.dto.*;
+import br.com.devpaulosouza.easybuy.enumeration.AuthorityType;
 import br.com.devpaulosouza.easybuy.mapper.OrderMapper;
 import br.com.devpaulosouza.easybuy.model.Order;
 import br.com.devpaulosouza.easybuy.model.Product;
 import br.com.devpaulosouza.easybuy.model.ProductOrder;
+import br.com.devpaulosouza.easybuy.model.User;
 import br.com.devpaulosouza.easybuy.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,23 +42,27 @@ public class OrderService {
     @Autowired
     private ProductInventoryService productInventoryService;
 
-    public Mono<OrderOutputDto> create(OrderInputDto orderInputDto) {
+    @Autowired
+    private AuthService authService;
+
+    public Mono<OrderDetailedDto> create(OrderInputDto orderInputDto, UUID token) {
 
         return Mono.zip(
-                values -> createOrderAggregate(orderInputDto, (List<Product>) values[0], (Long) values[1]),
+                values -> createOrderAggregate(orderInputDto, (List<Product>) values[0], (Long) values[1], (User) values[2]),
                 productService.findAllByUuid(
                         orderInputDto.getProducts()
                                 .stream()
                                 .map(ProductOrderInputDto::getProductId)
                                 .collect(Collectors.toList())
                 ).collectList(),
-                this.getNextNumber()
+                this.getNextNumber(),
+                authService.checkUserToken(token, AuthorityType.NOT_ADMIN)
         )
                 .flatMap((productInventory) -> Mono.fromCallable(()-> orderRepository.save(productInventory)))
                 .flatMap(order -> Mono.just(order)
                         .flatMap((o) -> productOrderService.create(o.getProducts()))
                         .map((p) -> order))
-                .map(mapper::toDto);
+                .map(mapper::toDetailedDto);
     }
 
     public Mono<OrderDetailedDto> findByUuid(UUID uuidProduct) {
@@ -64,9 +71,23 @@ public class OrderService {
                 .map(mapper::toDetailedDto);
     }
 
-    public Mono<Page<OrderSimplifiedDto>> findAll(Pageable pageable) {
-        return Mono.just(pageable)
-                .flatMap(pageRequest -> Mono.fromCallable(() -> orderRepository.findAll(pageRequest)))
+    public Mono<Page<OrderSimplifiedDto>> findAll(Pageable pageable, UUID userId, UUID token) {
+        return authService
+                .checkUserToken(token, AuthorityType.NOT_ADMIN)
+                .flatMap(user -> {
+
+                    // apenas ADMIN podem buscar todos Orders
+                    if (AuthorityType.ADMIN.equals(user.getRole())) {
+                        if (Objects.isNull(userId)) {
+                            return Mono.fromCallable(() -> orderRepository.findAll(pageable));
+                        } else {
+                            return Mono.fromCallable(() -> orderRepository.findAllByUserUuid(userId, pageable));
+                        }
+                    } else {
+                        return Mono.fromCallable(() -> orderRepository.findAllByUserUuid(user.getUuid(), pageable));
+                    }
+
+                })
                 .map(orders -> orders.map(mapper::toSimplifiedDto));
     }
 
@@ -74,7 +95,7 @@ public class OrderService {
         return Mono.fromCallable(() -> orderRepository.getNextNumber());
     }
 
-    private Order createOrderAggregate(OrderInputDto orderInputDto, List<Product> value, Long nextNumber) {
+    private Order createOrderAggregate(OrderInputDto orderInputDto, List<Product> value, Long nextNumber, User user) {
 
         List<UUID> productsPersisted = value
                 .stream()
@@ -96,6 +117,8 @@ public class OrderService {
         }
 
         Order order = mapper.toEntity(orderInputDto);
+
+        order.setUser(user);
 
         order.getProducts().forEach(productOrder -> {
             Optional<Product> first = value.stream()

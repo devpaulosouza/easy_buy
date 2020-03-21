@@ -3,8 +3,11 @@ package br.com.devpaulosouza.easybuy.controller;
 import br.com.devpaulosouza.easybuy.dto.UserInputDto;
 import br.com.devpaulosouza.easybuy.dto.UserLoginDto;
 import br.com.devpaulosouza.easybuy.dto.UserOutputDto;
+import br.com.devpaulosouza.easybuy.dto.UserOutputSimplifiedDto;
 import br.com.devpaulosouza.easybuy.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -12,6 +15,7 @@ import reactor.core.publisher.Mono;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.UUID;
 
 /**
  * Esse controller aqui é só encheção de linguiça, ngm usa Basic auth pra um site de venda
@@ -23,9 +27,19 @@ public class AuthController {
     @Autowired
     private AuthService service;
 
-    @PostMapping("/create-user")
+    @PostMapping("/user")
     Mono<ResponseEntity<UserOutputDto>> createUser(@RequestBody @Valid UserInputDto userInputDto) {
         return service.createUser(userInputDto)
+                .map(ResponseEntity::ok);
+    }
+
+    @GetMapping("/user")
+    Mono<ResponseEntity<Page<UserOutputSimplifiedDto>>> findAll(
+            @CookieValue(value = "gambi_web_token", required = false) UUID token,
+            Pageable pageable
+    ) {
+        return service
+                .findAll(token, pageable)
                 .map(ResponseEntity::ok);
     }
 

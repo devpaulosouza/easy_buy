@@ -20,4 +20,8 @@ public class OrderSimplifiedDto {
 
     private BigDecimal total;
 
+    private UUID userId;
+
+    private String userName;
+
 }

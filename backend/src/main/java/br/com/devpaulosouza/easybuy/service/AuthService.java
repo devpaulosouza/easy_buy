@@ -3,13 +3,17 @@ package br.com.devpaulosouza.easybuy.service;
 import br.com.devpaulosouza.easybuy.dto.UserInputDto;
 import br.com.devpaulosouza.easybuy.dto.UserLoginDto;
 import br.com.devpaulosouza.easybuy.dto.UserOutputDto;
+import br.com.devpaulosouza.easybuy.dto.UserOutputSimplifiedDto;
 import br.com.devpaulosouza.easybuy.enumeration.AuthorityType;
 import br.com.devpaulosouza.easybuy.mapper.UserMapper;
 import br.com.devpaulosouza.easybuy.model.User;
 import br.com.devpaulosouza.easybuy.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
@@ -85,23 +89,30 @@ public class AuthService {
         return m.matches();
     }
 
-    public Mono<Void> hasPermission(UUID token, AuthorityType role) {
+    public Mono<Page<UserOutputSimplifiedDto>> findAll(UUID token, Pageable pageable) {
+        return checkUserToken(token, AuthorityType.ADMIN)
+                .flatMap((user) -> Mono.fromCallable(() -> userRepository.findAll(pageable)))
+                .map(users -> users.map(mapper::toSimplifiedDto));
+    }
+
+    public Mono<User> checkUserToken(UUID token, AuthorityType role) {
 
         if (Objects.isNull(token)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
         }
 
         return Mono.just(token)
                 .flatMap(tkn -> Mono.fromCallable(() -> userRepository.findByToken(tkn)))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized")))
                 .map(user -> {
                     if (AuthorityType.ADMIN.equals(role) && !AuthorityType.ADMIN.equals(user.getRole())) {
                         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
                     }
                     if (LocalDateTime.now().isAfter(user.getTokenValidUntil())) {
-                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Token expired");
+                        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
                     }
                     return user;
-                })
-                .then();
+                });
     }
+
 }

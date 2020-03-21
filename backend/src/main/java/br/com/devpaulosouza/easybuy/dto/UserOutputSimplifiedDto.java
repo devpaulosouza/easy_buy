@@ -12,14 +12,12 @@ import java.util.UUID;
 @Setter
 @ToString
 @NoArgsConstructor
-public class UserOutputDto implements Dto {
+public class UserOutputSimplifiedDto {
 
     private UUID id;
 
     private String name;
 
     private String username;
-
-    private UUID token;
 
 }

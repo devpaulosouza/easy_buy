@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet id="alter-order-user" author="paulo.santos">
+        <addColumn tableName="order_">
+            <column name="user_id" type="BIGINT" >
+                <constraints
+                        foreignKeyName="order_userFK"
+                        referencedTableName="user_"
+                        referencedColumnNames="id"
+                />
+            </column>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

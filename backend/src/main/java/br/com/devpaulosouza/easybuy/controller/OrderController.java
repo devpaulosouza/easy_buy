@@ -2,8 +2,8 @@ package br.com.devpaulosouza.easybuy.controller;
 
 import br.com.devpaulosouza.easybuy.dto.OrderDetailedDto;
 import br.com.devpaulosouza.easybuy.dto.OrderInputDto;
-import br.com.devpaulosouza.easybuy.dto.OrderOutputDto;
 import br.com.devpaulosouza.easybuy.dto.OrderSimplifiedDto;
+import br.com.devpaulosouza.easybuy.service.AuthService;
 import br.com.devpaulosouza.easybuy.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,17 +22,27 @@ public class OrderController {
     @Autowired
     private OrderService service;
 
+    @Autowired
+    private AuthService authService;
+
     @PostMapping
-    public Mono<ResponseEntity<OrderOutputDto>> create(@Valid @RequestBody OrderInputDto orderInputDto) {
+    public Mono<ResponseEntity<OrderDetailedDto>> create(
+            @Valid @RequestBody OrderInputDto orderInputDto,
+            @CookieValue(value = "gambi_web_token", required = false) UUID token
+    ) {
         return service
-                .create(orderInputDto)
+                .create(orderInputDto, token)
                 .map(ResponseEntity::ok);
     }
 
     @GetMapping
-    public Mono<ResponseEntity<Page<OrderSimplifiedDto>>> findAll(Pageable pageable) {
+    public Mono<ResponseEntity<Page<OrderSimplifiedDto>>> findAll(
+            @RequestParam(value = "userId", required = false) UUID userId,
+            @CookieValue(value = "gambi_web_token", required = false) UUID token,
+            Pageable pageable
+    ) {
         return service
-                .findAll(pageable)
+                .findAll(pageable, userId, token)
                 .map(ResponseEntity::ok);
     }
 

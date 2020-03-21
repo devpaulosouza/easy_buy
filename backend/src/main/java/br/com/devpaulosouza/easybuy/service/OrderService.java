@@ -65,9 +65,15 @@ public class OrderService {
                 .map(mapper::toDetailedDto);
     }
 
-    public Mono<OrderDetailedDto> findByUuid(UUID productId, UUID token) {
+    public Mono<OrderDetailedDto> findByUuid(UUID orderId, UUID token) {
         return authService.checkUserToken(token, AuthorityType.NOT_ADMIN)
-                .flatMap(user -> Mono.fromCallable(() -> orderRepository.findByUuidAndUserId(productId, user.getId())))
+                .flatMap(user -> {
+                    if (AuthorityType.ADMIN.equals(user.getRole())) {
+                        return Mono.fromCallable(() -> orderRepository.findByUuid(orderId));
+                    } else {
+                        return Mono.fromCallable(() -> orderRepository.findByUuidAndUserId(orderId, user.getId()));
+                    }
+                })
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found")))
                 .map(mapper::toDetailedDto);
     }

@@ -17,6 +17,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/order")
+@CrossOrigin
 public class OrderController {
 
     @Autowired

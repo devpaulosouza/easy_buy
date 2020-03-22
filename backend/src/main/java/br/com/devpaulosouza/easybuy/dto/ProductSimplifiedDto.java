@@ -7,6 +7,7 @@ import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
@@ -17,12 +18,12 @@ public class ProductSimplifiedDto implements Dto {
 
     private UUID id;
 
-    @NotNull
-    @Length(max = 255)
     private String code;
 
-    @NotNull
-    @Length(max = 255)
     private String shortDescription;
+
+    private BigDecimal price;
+
+    private BigDecimal quantity;
 
 }

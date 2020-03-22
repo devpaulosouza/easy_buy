@@ -22,6 +22,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin
 public class AuthController {
 
     @Autowired

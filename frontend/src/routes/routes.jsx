@@ -4,22 +4,10 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
+  Link,
+  Redirect
 } from "react-router-dom";
-
-
-
-function Produtos() {
-  return <h2>Produtos</h2>;
-}
-
-function Pedidos() {
-  return <h2>Pedidos</h2>;
-}
-
-function Login() {
-  return <h2>Login</h2>;
-}
+import { ProductPage, AuthPage, OrderPage } from '../pages';
 
 const Routes = () => (
   <Router>
@@ -27,13 +15,13 @@ const Routes = () => (
       <nav>
         <ul>
           <li>
-            <Link to="/">Produtos</Link>
+            <Link to="/product">Produtos</Link>
           </li>
           <li>
-            <Link to="/Pedidos">Pedidos</Link>
+            <Link to="/order">Pedidos</Link>
           </li>
           <li>
-            <Link to="/Login">Login</Link>
+            <Link to="/auth">Login</Link>
           </li>
         </ul>
       </nav>
@@ -41,17 +29,19 @@ const Routes = () => (
       {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
       <Switch>
-        <Route path="/pedidos">
-          <Pedidos />
+        <Route path="/order">
+          <OrderPage />
         </Route>
         <Route path="/auth">
-          <Login />
+          <AuthPage />
         </Route>
-        <Route path="/produtos">
-          <Produtos />
+        <Route path="/product">
+          <ProductPage />
         </Route>
 
-        <Route exact="/" />
+        <Route exact path="/">
+          <Redirect to="/product"/>
+        </Route>
       </Switch>
     </div>
   </Router>

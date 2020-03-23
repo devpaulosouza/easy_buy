@@ -39,7 +39,7 @@ public class AuthController {
 
     @GetMapping("/user")
     Mono<ResponseEntity<Page<UserOutputSimplifiedDto>>> findAll(
-            @CookieValue(value = "gambi_web_token", required = false) UUID token,
+            @RequestHeader(value = "gambi_web_token", required = false) UUID token,
             Pageable pageable
     ) {
         return service

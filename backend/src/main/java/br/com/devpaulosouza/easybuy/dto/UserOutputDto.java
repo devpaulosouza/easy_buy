@@ -22,4 +22,6 @@ public class UserOutputDto implements Dto {
 
     private UUID token;
 
+    private String role;
+
 }

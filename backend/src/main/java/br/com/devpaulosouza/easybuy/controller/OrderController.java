@@ -29,7 +29,7 @@ public class OrderController {
     @PostMapping
     public Mono<ResponseEntity<OrderDetailedDto>> create(
             @Valid @RequestBody OrderInputDto orderInputDto,
-            @CookieValue(value = "gambi_web_token", required = false) UUID token
+            @RequestHeader(value = "gambi_web_token", required = false) UUID token
     ) {
         return service
                 .create(orderInputDto, token)
@@ -39,7 +39,7 @@ public class OrderController {
     @GetMapping
     public Mono<ResponseEntity<Page<OrderSimplifiedDto>>> findAll(
             @RequestParam(value = "userId", required = false) UUID userId,
-            @CookieValue(value = "gambi_web_token", required = false) UUID token,
+            @RequestHeader(value = "gambi_web_token", required = false) UUID token,
             Pageable pageable
     ) {
         return service
@@ -51,7 +51,7 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public Mono<ResponseEntity<OrderDetailedDto>> findByUuid(
             @PathVariable("orderId") UUID uuidProduct,
-            @CookieValue(value = "gambi_web_token", required = false) UUID token
+            @RequestHeader(value = "gambi_web_token", required = false) UUID token
     ) {
         return service
                 .findByUuid(uuidProduct, token)

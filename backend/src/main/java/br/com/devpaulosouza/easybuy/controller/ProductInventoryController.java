@@ -27,7 +27,7 @@ public class ProductInventoryController {
     @PutMapping
     public Mono<ResponseEntity<ProductInventoryOutputDto>> updateInventory(
             @Valid @RequestBody ProductInventoryInputDto productDto,
-            @CookieValue(value = "gambi_web_token", required = false) UUID token
+            @RequestHeader(value = "gambi_web_token", required = false) UUID token
     ) {
         return service
                 .updateInventory(productDto, token)

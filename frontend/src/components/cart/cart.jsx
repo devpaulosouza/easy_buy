@@ -1,6 +1,11 @@
 import React, { useContext } from 'react';
 import { GlobalContext } from '../../context/globalContext';
 
+import { isAuthenticated } from '../../util/web';
+import { showAuthModal } from '../auth/authModal';
+import { myAlert } from '../../util/myAlert';
+import { orderApi } from '../../api/orderApi';
+
 const Cart = () => {
 
   const [productInCart, setProductInCart] = useContext(GlobalContext).productsInCart;
@@ -12,7 +17,7 @@ const Cart = () => {
       total = productInCart.map(p => p.quantity * p.price).reduce((a,b)=> a + b, 0);
     }
 
-    return Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total);
+    return total;
   }
 
   const handleRemoveOne = (productId) => {
@@ -34,10 +39,35 @@ const Cart = () => {
     setProductInCart(ps);
   }
 
+  const submit = async () => {
+    try {
+
+      const products = productInCart.map(p => ({ productId: p.id, ...p }));
+
+      await orderApi.post({ products });
+
+      setProductInCart([])
+
+    } catch(err) {
+      console.error(err);
+    }
+  }
+
+  const handleFinish = () => {
+
+    if (!isAuthenticated()) {
+      showAuthModal(true);
+    } else {
+      myAlert.confirm('Confirmar compra', 'Deseja confirmar o pedido?', submit)
+    }
+
+  }
+
+  const total = calculateTotal();
+
   return (
     <div>
-      <div className=""><b>Total:</b> <span>{calculateTotal()}</span></div>
-      <table className="table">
+      <table className="table table-hover">
         <thead>
           <tr>
             <th scope="col">Código</th>
@@ -74,6 +104,17 @@ const Cart = () => {
           }
         </tbody>
       </table>
+
+      <div className=""><b>Total:</b> <span>{Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}</span></div>
+      <div className="mb-5 float-right">
+        <button 
+          className="btn btn-success"
+          onClick={handleFinish}
+          disabled={total === 0}
+        >
+          Finalizar compra
+        </button>
+      </div>
     </div>
   )
 }

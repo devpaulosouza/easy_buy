@@ -68,7 +68,7 @@ const ProductList = () => {
 
   return (
     <div>
-      <table className="table table-product">
+      <table className="table table-hover table-product">
         <thead>
           <tr>
             <th scope="col">Código</th>

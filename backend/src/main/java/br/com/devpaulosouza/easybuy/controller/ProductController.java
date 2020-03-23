@@ -29,7 +29,7 @@ public class ProductController {
     @PostMapping
     public Mono<ResponseEntity<ProductDto>> create(
             @Valid @RequestBody ProductDto productDto,
-            @CookieValue(value = "gambi_web_token", required = false) UUID token
+            @RequestHeader(value = "gambi_web_token", required = false) UUID token
     ) {
         return authService
                 .checkUserToken(token, AuthorityType.ADMIN)
@@ -38,7 +38,9 @@ public class ProductController {
     }
 
     @GetMapping
-    public Mono<ResponseEntity<Page<ProductSimplifiedDto>>> findAll(Pageable pageable) {
+    public Mono<ResponseEntity<Page<ProductSimplifiedDto>>> findAll(Pageable pageable,
+
+                                                                    @RequestHeader(value = "gambi_web_token", required = false) UUID token) {
         return service
                 .findAll(pageable)
                 .map(ResponseEntity::ok);

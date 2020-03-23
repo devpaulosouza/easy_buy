@@ -14,7 +14,8 @@ const App = () => (
   <GlobalContext.Provider
     value={{
       productsInCart: useState([]),
-      authenticated: useState(false)
+      authenticated: useState(false),
+      orderId: useState()
     }}
     >
     <Routes />

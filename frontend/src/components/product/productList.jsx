@@ -54,6 +54,10 @@ const ProductList = () => {
     }
   }
 
+  const handlePageClick = (event) => {
+    fetchProducts(event.selected);
+  }
+
   const getQuantityInCart = (productId) => {
     if (productInCart) {
       const [ ps ] = productInCart.filter(p => p.id === productId);

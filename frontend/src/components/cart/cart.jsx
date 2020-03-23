@@ -48,7 +48,7 @@ const Cart = ({ history }) => {
 
       setProductInCart([]);
 
-      history.push(`/order?userId=${getUserId()}`);
+      history.push(`/order`);
 
     } catch(err) {
       console.error(err);

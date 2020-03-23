@@ -10,7 +10,7 @@ export const orderApi = {
     });
   },
   getAll: ({page, userId}) => {
-    return axios.get(`/order?${userId?'userId&'+userId:''}page=${page}&size=10`, {
+    return axios.get(`/order?${userId?'userId&'+userId:''}page=${page}&size=10&sort=createdAt,desc`, {
         headers: {
             gambi_web_token: getToken()
         }
@@ -18,7 +18,7 @@ export const orderApi = {
   },
   get: (id) => {
     if (id) {
-      return fetch(`${URL}/order/${id}`, {
+      return axios.get(`/order/${id}`, {
         headers: {
             gambi_web_token: getToken()
         }

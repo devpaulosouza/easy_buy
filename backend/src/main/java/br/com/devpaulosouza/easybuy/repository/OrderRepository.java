@@ -31,8 +31,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query(
             "SELECT o FROM Order o" +
-                    "   JOIN FETCH o.products " +
-                    "   WHERE o.uuid = :uuid "
+            "   JOIN FETCH o.products " +
+            "   WHERE o.uuid = :uuid "
     )
     Order findByUuid(UUID uuid);
 

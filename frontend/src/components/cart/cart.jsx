@@ -1,12 +1,13 @@
 import React, { useContext } from 'react';
 import { GlobalContext } from '../../context/globalContext';
 
-import { isAuthenticated } from '../../util/web';
+import { isAuthenticated, getUserId } from '../../util/web';
 import { showAuthModal } from '../auth/authModal';
 import { myAlert } from '../../util/myAlert';
 import { orderApi } from '../../api/orderApi';
+import { withRouter } from 'react-router-dom';
 
-const Cart = () => {
+const Cart = ({ history }) => {
 
   const [productInCart, setProductInCart] = useContext(GlobalContext).productsInCart;
 
@@ -41,12 +42,13 @@ const Cart = () => {
 
   const submit = async () => {
     try {
-
       const products = productInCart.map(p => ({ productId: p.id, ...p }));
 
       await orderApi.post({ products });
 
-      setProductInCart([])
+      setProductInCart([]);
+
+      history.push(`/order?userId=${getUserId()}`);
 
     } catch(err) {
       console.error(err);
@@ -119,4 +121,4 @@ const Cart = () => {
   )
 }
 
-export default Cart;
+export default withRouter(Cart);

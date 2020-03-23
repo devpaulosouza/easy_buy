@@ -30,9 +30,6 @@ const ProductList = () => {
     fetchProducts(0);
   }, [])
 
-  const handlePageClick = (event) => {
-    fetchProducts(event.selected);
-  }
 
   const handleAdd = (product) => {
     const { id: productId } = product

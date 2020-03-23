@@ -8,12 +8,7 @@ const validatePassword = (email = '') => email.length >= 5;
 
 
 export const showAuthModal = (visible) => {
-  console.log('modal visible ' + visible);
-
-  console.log($('#auth-modal'));
-
   if (visible) {
-
     $('#auth-modal').modal({
       show: visible
     });
@@ -43,13 +38,13 @@ const AuthModal = () => {
         const res = await authApi.post(username, password);
         window.localStorage.setItem('token', res.data.token);
         window.localStorage.setItem('role', res.data.role);
+        window.localStorage.setItem('userId', res.data.id);
         showAuthModal(false);
         setAuthenticated(true);
       } catch (err) {
         console.error(err);
       }
     }
-
   }
 
 

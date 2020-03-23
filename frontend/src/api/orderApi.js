@@ -9,12 +9,20 @@ export const orderApi = {
         }
     });
   },
-  getAll: (page) => {
-    return axios.get(`/order?page=${page}&size=10`)
+  getAll: ({page, userId}) => {
+    return axios.get(`/order?${userId?'userId&'+userId:''}page=${page}&size=10`, {
+        headers: {
+            gambi_web_token: getToken()
+        }
+    });
   },
   get: (id) => {
     if (id) {
-      return fetch(`${URL}/order/${id}`);
+      return fetch(`${URL}/order/${id}`, {
+        headers: {
+            gambi_web_token: getToken()
+        }
+    });
     }
     return false;
   }

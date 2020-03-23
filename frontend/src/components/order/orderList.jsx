@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { orderApi } from '../../api/orderApi';
-import { getUserId } from '../../util/web';
+import { getUserId, isAuthenticated } from '../../util/web';
 import ReactPaginate from 'react-paginate';
 import { GlobalContext } from '../../context/globalContext';
 import { showOrderModal } from './orderModal';
+import { withRouter } from 'react-router-dom';
 
 const OrderList = () => {
 
   const [orders, setOrders] = useState([]);
   const [pageCount, setPageCount] = useState(0);
 
-  const [orderId, setOrderId] = useContext(GlobalContext).orderId;
-
+  const [, setOrderId] = useContext(GlobalContext).orderId;
 
   const fetchOrders = async ({ userId, page = 0 }) => {
     try {
@@ -28,9 +28,11 @@ const OrderList = () => {
   }
 
   useEffect(() => {
-    const userId = getUserId();
+    if (isAuthenticated()) {
+      const userId = getUserId();
 
-    fetchOrders(userId);
+      fetchOrders(userId);
+    }
   }, []);
 
   const handleItemClick = (id) => {

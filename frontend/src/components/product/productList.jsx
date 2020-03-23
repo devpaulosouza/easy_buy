@@ -10,6 +10,7 @@ const ProductList = () => {
 
 
   const [ productInCart, setProductInCart ] = useContext(GlobalContext).productsInCart;
+  const [ refresh, setRefresh ] = useContext(GlobalContext).refresh;
 
   const fetchProducts = async (page) => {
 
@@ -29,6 +30,13 @@ const ProductList = () => {
   useEffect(() => {
     fetchProducts(0);
   }, [])
+
+  useEffect(() => {
+    if (refresh) {
+      fetchProducts(0);
+      setRefresh(false);
+    }
+  }, [refresh])
 
 
   const handleAdd = (product) => {

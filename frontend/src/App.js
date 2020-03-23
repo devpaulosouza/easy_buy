@@ -15,7 +15,8 @@ const App = () => (
     value={{
       productsInCart: useState([]),
       authenticated: useState(false),
-      orderId: useState()
+      orderId: useState(),
+      refresh: useState(false)
     }}
     >
     <Routes />

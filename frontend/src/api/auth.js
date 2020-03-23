@@ -4,10 +4,7 @@ export const  authApi = {
   post: (username, password) => {
     return axios.post(`/auth`, { username, password });
   },
-  get: (id) => {
-    if (id) {
-      return fetch(`${URL}/product/${id}`);
-    }
-    return false;
+  register: (name, username, password) => {
+    return axios.post('/auth/user', { name, username, password });
   }
 }

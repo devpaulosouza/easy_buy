@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ProductList, Cart } from '../../components';
+import { ProductList, Cart, ModalProductDetailed } from '../../components';
 import { getRole } from '../../util/web';
 import CreateProductModal, { showCreateProductModal } from '../../components/product/modalCreateProduct';
 
@@ -23,6 +23,7 @@ const Product = () => {
       <Cart />
 
       <CreateProductModal />
+      <ModalProductDetailed />
 
     </div>
   )

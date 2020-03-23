@@ -2,12 +2,14 @@ import React, { useState, useEffect, useContext, memo } from 'react';
 import { productApi } from '../../api/product';
 import ReactPaginate from 'react-paginate';
 import { GlobalContext } from '../../context/globalContext';
+import { showProductModal } from './modalProductDetailed';
 
 const ProductList = () => {
 
   const [products, setProducts] = useState([]);
   const [pageCount, setPageCount] = useState(0);
 
+  const [, setProductId] = useContext(GlobalContext).productId;
 
   const [ productInCart, setProductInCart ] = useContext(GlobalContext).productsInCart;
   const [ refresh, setRefresh ] = useContext(GlobalContext).refresh;
@@ -75,6 +77,11 @@ const ProductList = () => {
     return 0;
   }
 
+  const handleClick = (productId) => {
+    setProductId(productId);
+    showProductModal(true);
+  }
+
   return (
     <div>
       <table className="table table-hover table-product">
@@ -91,13 +98,13 @@ const ProductList = () => {
             products.map((product) => {
               const { code, id, shortDescription, price, quantity } = product
               return <tr key={id}>
-                <td>
+                <td onClick={() => handleClick(id)} style={{cursor: 'pointer'}}>
                   {code}
                 </td>                
-                <td>
+                <td onClick={() => handleClick(id)} style={{cursor: 'pointer'}}>
                   {shortDescription}
                 </td>
-                <td>
+                <td onClick={() => handleClick(id)} style={{cursor: 'pointer'}}>
                   {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price)}
                 </td>
                 <td>

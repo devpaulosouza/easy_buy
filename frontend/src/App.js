@@ -16,6 +16,7 @@ const App = () => (
       productsInCart: useState([]),
       authenticated: useState(false),
       orderId: useState(),
+      productId: useState(),
       refresh: useState(false)
     }}
     >

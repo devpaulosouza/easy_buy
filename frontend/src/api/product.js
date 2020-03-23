@@ -7,7 +7,7 @@ export const  productApi = {
   },
   get: (id) => {
     if (id) {
-      return fetch(`${URL}/product/${id}`);
+      return axios.get(`/product/${id}`);
     }
     return false;
   },

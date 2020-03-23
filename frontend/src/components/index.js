@@ -1,5 +1,5 @@
 import ProductList from './product/productList';
-import ProductDetailed from './product/productDetailed';
+import ModalProductDetailed from './product/modalProductDetailed';
 import Cart from './cart/cart';
 import AuthModal from './auth/authModal';
 import OrderList from './order/orderList';
@@ -7,7 +7,7 @@ import OrderList from './order/orderList';
 export {
     AuthModal,
     Cart,
-    ProductDetailed,
+    ModalProductDetailed,
     ProductList,
     OrderList
 }
